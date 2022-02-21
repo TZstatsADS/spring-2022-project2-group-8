@@ -17,7 +17,9 @@ citibike_covid_line <- read.csv("../data/citibike/cleaned/linechart_covid.csv")
 citibike_covid_line$week <- as.Date(citibike_covid_line$week, "%Y-%m-%d")
 class(citibike_covid_line$week)
 # long 
-citibike_covid_line <- citibike_covid_line %>% gather(variables, values, tripduration, totaltrip)
+citibike_covid_line <- citibike_covid_line %>% 
+  gather(variables, values, tripduration, totaltrip) %>%
+  mutate(values = ifelse(variables == 'totaltrip',round(values/20000),values))
 
 
 citibike_covid <- readRDS("../data/citibike/cleaned/citibike_covid.RDS")
