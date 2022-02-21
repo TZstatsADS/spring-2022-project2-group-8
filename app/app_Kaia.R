@@ -11,6 +11,16 @@ library(RColorBrewer)
 #c("shinydashboard", "shiny", "tidyverse", "htmlwidgets", "lubridate", "RColorBrewer")
 
 
+### add
+library(tidyr)
+# convert data type
+citibike_covid_line <- read.csv("../data/citibike/cleaned/linechart_covid.csv")
+citibike_covid_line$week <- as.Date(citibike_covid_line$week, "%Y-%m-%d")
+class(citibike_covid_line$week)
+# long 
+citibike_covid_line <- citibike_covid_line %>% gather(variables, values, tripduration, totaltrip)
+
+
 citibike_covid <- readRDS("../data/citibike/cleaned/citibike_covid.RDS")
 class(citibike_covid$week)
 
@@ -80,12 +90,25 @@ ui <- dashboardPage(skin = "black",
                                         value=min(citibike_covid$week),
                                         step= days(7),
                                         timeFormat="%Y-%m-%d"
-                            )
-                            ####
+                            ),
+                            selectizeInput("typeInput", "Type:",
+                                           choices = unique(citibike_covid_line$variables),
+                                           selected = "tripduration", multiple=FALSE),
+                            sliderInput("dateSlider2",
+                                        "Select a Date Range (by week):",
+                                        min = min(citibike_covid_line$week),
+                                        max = max(citibike_covid_line$week),
+                                        value=c(min(citibike_covid_line$week), max(citibike_covid_line$week)), 
+                                        step= days(7),
+                                        timeFormat="%Y-%m-%d")
                         ),
                         mainPanel(
                             tabsetPanel(
-                                tabPanel("Citibike Use Map", leafletOutput("cases"))                            )
+                                tabPanel("Citibike Use Map",
+                                         leafletOutput("cases"),
+                                         plotOutput("timePlot"),
+                                         plotOutput("casePlot"))
+                            )
                         )
                     )
                 )
@@ -153,7 +176,7 @@ server <- function(input, output) {
     week_zcta() %>%
         st_transform(crs = "+init=epsg:4326") %>%
         leaflet() %>%
-        addProviderTiles(provider = "Stamen.TonerLite",
+        addProviderTiles(provider = "CartoDB.DarkMatter",
                          options = providerTileOptions(noWrap = TRUE)) %>%
         setView(-73.95, 40.75, zoom = 11) %>%
         addPolygons(label = labels, fillColor = ~pal(week_zcta()$count),
@@ -168,6 +191,27 @@ server <- function(input, output) {
                   values = ~count, title = "# of start and end points",
                   opacity = 0.7, position = "bottomright")
     })
+    week_line <- reactive({
+        citibike_covid_line %>%
+            filter(variables==input$typeInput,
+                   week >= input$dateSlider2[1],
+                   week <= input$dateSlider2[2])
+    })
+    output$timePlot <- renderPlot({
+        ggplot(week_line(), aes(x=week, y=values)) +
+            geom_density(size=2, fill="#69b3a2", color="#69b3a2", alpha=.6, stat="identity") +
+            xlab("Date") +
+            ggtitle("Trip Duration/Total Trips in NYC")+ theme_dark()
+        
+    })
+    output$casePlot <- renderPlot({
+        ggplot(week_line(), aes(x=week, y=case_rate)) +
+            geom_density(size=2, fill="red", color="red", alpha=.6, stat='identity')+
+            xlab("Date") +
+            ggtitle("Case Rate in NYC")+ theme_dark()
+        
+    })
+    
 
 
 }
