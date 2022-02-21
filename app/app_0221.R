@@ -202,14 +202,15 @@ server <- function(input, output) {
         ggplot(week_line(),aes(x=week)) +
         geom_density(aes(y = values),size=2, fill="#69b3a2", color="#69b3a2", alpha=.6, stat="identity") +
         geom_density(aes(y = case_rate/110), fill="darkred", color="darkred", alpha=.6, stat="identity") +
-        labs(title = "Trip Duration/Total Trips in NYC" , x = 'Week', y = 'Trip duration')+
+        labs(title = "Trip Duration & Total Trips in NYC" , x = 'Week', y = 'Trip duration')+
         scale_y_continuous(
-          name = "Trip duration",
+          name = "Trip Duration(mins) or Total Trips(20000 trips)",
           sec.axis = sec_axis(~.*110, name="COVID cases")) + 
         #
         theme(panel.background = element_rect(fill = "gray10",
                                                 colour = "gray10",
-                                                size = 0.5, linetype = "solid")) 
+                                                size = 0.5, linetype = "solid")) +
+        theme(plot.title=element_text(size=15,hjust = 0.5))
     })
 }
 
