@@ -188,7 +188,7 @@ server <- function(input, output) {
                                                         opacity = 1,
                                                         bringToFront = TRUE)) %>%
         addLegend(pal = pal,
-                  values = ~count, title = "# of start and end points",
+                  values = ~count, title = "Total # of Start/End points",
                   opacity = 0.7, position = "bottomright")
     })
     week_line <- reactive({
