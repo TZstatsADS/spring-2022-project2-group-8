@@ -11,7 +11,6 @@ library(RColorBrewer)
 #c("shinydashboard", "shiny", "tidyverse", "htmlwidgets", "lubridate", "RColorBrewer")
 
 
-### add
 library(tidyr)
 # convert data type
 citibike_covid_line <- read.csv("../data/citibike/cleaned/linechart_covid.csv")
