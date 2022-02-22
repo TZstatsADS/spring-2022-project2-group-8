@@ -1,0 +1,263 @@
+body {
+    color: #000000;
+}
+
+/* Page background */
+#canvas {
+    position: fixed;
+    background-image: url("img/NYC_adj.jpg");
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: center;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+}
+
+/* Navbar Tweaks */
+.navbar-default {
+    background-color: #000000;
+    border-color: transparent;
+}
+.navbar-default .navbar-nav>.active>a {
+    color: #000000;
+    background-color: #ebebeb;
+}
+.navbar-default .navbar-nav>li>a {
+    color: #ffffff;
+}
+
+
+/* Universal plain text font size */
+p {
+    font-size: 120%;
+}
+
+/* full page map division */
+div.outer {
+    position: fixed;
+    top: 40px;
+    left: 0;
+    right: 0;
+    bottom: 25px;
+    overflow: hidden; /* content excedes the window area will be hidden */
+    padding: 0;
+}
+
+/* control pad  */
+#controls {
+    background-color: white;
+    padding: 0 10px 10px 10px;
+    cursor: move;
+    /* Fade out while not hovering */
+    opacity: 0.8;
+    transition: opacity 500ms 1s;
+}
+#controls:hover {
+  /* Fade in while hovering */
+  opacity: 0.95;
+  transition-delay: 0;
+}
+
+/* tab footer  */
+div.footer {
+    position: fixed;
+    top: auto;
+    left: auto;
+    right: 20px;
+    bottom: 20px;
+    font-style: italic;
+    text-align: right;
+    color: grey;
+}
+#circle {
+  width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  font-size: 11.25px;
+  color: white;
+  text-align: center;
+  line-height: 21.25px;
+  float: left;
+  margin: 5px;
+  transition: all 0.1s ease-in-out;
+  border: 1px solid transparent;
+}
+
+#circle:hover {
+  transition: all 0.2s ease-in-out;
+  transform: scale(1.5);
+  box-shadow: 0 0 8px #fff;
+  border: 1px solid grey;
+  display: block;
+}
+
+.red {
+  background: rgb(255, 0, 0);
+  background: radial-gradient(
+    circle,
+    rgba(255, 0, 0, 1) 0%,
+    rgba(161, 0, 0, 1) 100%
+  );
+}
+
+.blue {
+  background: rgb(0, 159, 255);
+  background: radial-gradient(
+    circle,
+    rgba(0, 159, 255, 1) 0%,
+    rgba(0, 100, 161, 1) 100%
+  );
+}
+
+.green {
+  background: rgb(65, 168, 16);
+  background: radial-gradient(
+    circle,
+    rgba(65, 168, 16, 1) 0%,
+    rgba(35, 69, 23, 1) 100%
+  );
+}
+
+.yellow {
+  background: rgb(222, 197, 18);
+  background: radial-gradient(
+    circle,
+    rgba(222, 197, 18, 1) 0%,
+    rgba(136, 119, 31, 1) 100%
+  );
+}
+
+.gray {
+  background: rgb(162, 162, 162);
+  background: radial-gradient(
+    circle,
+    rgba(162, 162, 162, 1) 0%,
+    rgba(92, 92, 92, 1) 100%
+  );
+}
+
+.purple {
+  background: rgb(197, 65, 236);
+  background: radial-gradient(
+    circle,
+    rgba(197, 65, 236, 1) 0%,
+    rgba(122, 25, 116, 1) 100%
+  );
+}
+
+.brown {
+  background: rgb(189, 127, 82);
+  background: radial-gradient(
+    circle,
+    rgba(189, 127, 82, 1) 0%,
+    rgba(122, 66, 25, 1) 100%
+  );
+}
+
+.orange {
+  background: rgb(238, 154, 35);
+  background: radial-gradient(
+    circle,
+    rgba(238, 154, 35, 1) 0%,
+    rgba(181, 88, 31, 1) 100%
+  );
+}
+
+.limegreen {
+  background: rgb(166, 255, 86);
+  background: radial-gradient(
+    circle,
+    rgba(166, 255, 86, 1) 0%,
+    rgba(60, 181, 15, 1) 100%
+  );
+}
+
+.cluster {
+    border-radius: 100%;
+    text-align: center;
+    color: black;
+    font-weight: 200;
+    font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif;
+  }
+
+  .cluster:before {
+    content: ' ';
+    position: absolute;
+    border-radius: 100%;
+    z-index: -1;
+    top: 5px;
+    left: 5px;
+    right: 0px;
+    bottom: 0px;
+  }
+.digits-2 {
+    background-color: rgba(186, 255, 246 , 0.4);
+    font-size: 10px;
+    height: 38px;
+    width: 38px;
+    line-height: 36px;
+    margin-top: -14px;
+    margin-left: -14px;
+}
+  .digits-2:before {
+    background-color: rgba(216, 253, 248, 0.8);
+    font-size: 10px;
+    height: 28px;
+    width: 28px;
+    line-height: 28px;
+  }
+
+  .digits-3 {
+    background-color: rgba(181, 226, 140, 0.6);
+    font-size: 14px;
+    height: 44px;
+    width: 44px;
+    line-height: 43px;
+    margin-top: -17px;
+    margin-left: -17px;
+  }
+
+  .digits-3:before {
+    background-color: rgba(110, 204, 57, 0.8);
+    height: 34px;
+    width: 34px;
+    line-height: 35px;
+  }
+
+  .digits-4 {
+    background-color: rgba(241, 211, 87, 0.4);
+    font-size: 16px;
+    height: 58px;
+    width: 58px;
+    line-height: 55px;
+    border-width: 3px;
+    margin-top: -24px;
+    margin-left: -24px;
+  }
+
+  .digits-4:before {
+    background-color: rgba(240, 194, 12, 0.8);
+    height: 48px;
+    width: 48px;
+    line-height: 47px;
+  }
+
+  .digits-5 {
+    background-color: rgba(241, 55, 0, 0.4);
+    font-size: 18px;
+    height: 70px;
+    width: 70px;
+    line-height: 65px;
+    margin-top: -29px;
+    margin-left: -29px;
+  }
+
+  .digits-5:before {
+    background-color: rgba(253, 83, 42, 0.8);
+    font-size: 18px;
+    height: 60px;
+    width: 60px;
+    line-height: 57px;
+  }
