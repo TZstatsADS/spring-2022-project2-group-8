@@ -4,7 +4,7 @@
 
 ![screenshot](doc/figs/readme_cover.png)
 
-In this second project of GR5243 Applied Data Science, we develop a *Exploratory Data Analysis and Visualization* shiny app on the work of a **NYC government agency/program** of your choice using NYC open data released on the [NYC Open Data By Agency](https://opendata.cityofnewyork.us/data/) website. In particular, many agencies have adjusted their work or rolled out new programs due to COVID, your app should provide ways for a user to explore quantiative measures of how covid has impacted daily life in NYC from different prospectives. See [Project 2 Description](doc/project2_desc.md) for more details.  
+We developed a *Exploratory Data Analysis and Visualization* shiny app on the work of a **NYC government agency/program** of your choice using NYC open data released on the [NYC Open Data By Agency](https://opendata.cityofnewyork.us/data/) website. This app provided ways for a user to explore quantiative measures of how covid has impacted transporation in NYC from different prospectives. 
 
 The **goals** for this project is:
 
@@ -13,8 +13,6 @@ The **goals** for this project is:
 - data visualization
 - systems development/design life cycle
 - shiny app/shiny server
-
-*The above general statement about project 2 can be removed once you are finished with your project. It is optional.
 
 ## NYC Public Transport during the COVID-19 Pandemic
 Term: Spring 2022
