@@ -85,7 +85,7 @@ ui <- dashboardPage(skin = "black",
                           p("Robin hailed a cab;"),
                           p("Ted rode the bus;"),
                           p("Marshall took himself as the engine."),
-                          tags$a(href = "https://www.imdb.com/title/tt1733369/", "<How I met your morth>", target = "_blank"),
+                          tags$a(href = "https://www.imdb.com/title/tt1733369/", "<How I met your mother>", target = "_blank"),
                           
                           p(),
                           p("While Today, Under COVID Pandamic,",
