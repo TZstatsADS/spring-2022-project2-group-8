@@ -14,7 +14,7 @@ library(zoo)
 if (!require("devtools")) {
   install.packages("devtools")
   library(remotes)
-  remotes::install_github("rstudio/leaflet")
+  devtools::install_github("rstudio/leaflet")
 }
 
 #c("shinydashboard", "shiny", "tidyverse", "htmlwidgets", "lubridate", "RColorBrewer")
