@@ -1,0 +1,276 @@
+---
+title: "Proj2-Bike"
+author: "Rong Xu/Kaia"
+date: "2/12/2022"
+output: html_document
+---
+
+# Step 0: check and install needed packages. Load the libraries and functions. 
+
+```{r, message=FALSE, warning=FALSE}
+packages.used=c("rvest", "tibble", "qdap", 
+                "sentimentr", "gplots", "dplyr",
+                "tm", "syuzhet", "factoextra", 
+                "beeswarm", "scales", "RColorBrewer",
+                "RANN", "tm", "topicmodels","readtext")
+
+# check packages that need to be installed.
+packages.needed=setdiff(packages.used, 
+                        intersect(installed.packages()[,1], 
+                                  packages.used))
+# install additional packages
+if(length(packages.needed)>0){
+  install.packages(packages.needed, dependencies = TRUE)
+}
+
+# load packages
+library("rvest")
+library("tibble")
+library("lubridate")
+library("tidyverse")
+library('tigris')
+library('base')
+library("qdap")
+library("sentimentr")
+library("gplots")
+library("dplyr")
+library("tm")
+library("syuzhet")
+library("factoextra")
+library("beeswarm")
+library("scales")
+library("RColorBrewer")
+library("RANN")
+library("tm")
+library("topicmodels")
+library("readtext")
+library ('readr')
+library('reticulate')
+source("Cleaning_Citibike_processing.R")
+```
+
+Create path
+```{r}
+paths <- c('citibike','cleaned')
+P <- '../data'
+for (path in paths){
+  P <- paste(P,'/',path,sep = '')
+  if (file.exists(P) == FALSE){
+        dir.create(file.path(P))
+  }
+}
+```
+
+
+# step 0.1: Scrape new data
+Historical data the project used have been scraped and saved in the data folder. This chunk is only used for grabbing new data sets.
+If you really want to scrape the data by yourself, uncomment the longer `month` list. It takes more than half an hour to scrape all the historical data from 2019.
+```{python}
+import requests
+from lxml import etree
+from io import BytesIO
+from zipfile import ZipFile
+import urllib.request
+import pandas as pd
+
+class ScrapeData():
+    def __init__(self):
+        self.link = requests.get('https://s3.amazonaws.com/tripdata')
+        self.source = etree.fromstring(self.link.content)
+    
+    def Scrape(self,month_list):
+        for item in self.source.xpath('//*'):
+            if item.text and item.text.endswith('zip') \
+            and (item.text[:6] in month_list and item.text[:2] == '20'):
+                lists = []
+                origin = 'https://s3.amazonaws.com/tripdata/' + item.text
+                print(item.text)
+                url = urllib.request.urlopen(origin)
+                with ZipFile(BytesIO(url.read())) as my_zip_file:
+                    for contained_file in my_zip_file.namelist():
+                        for line in my_zip_file.open(contained_file).readlines():
+                            try:
+                                l = line.decode("utf-8")
+                                l = l.replace('"', "")
+                                l = l.replace('\n', "").split(",")
+                                lists.append(l)
+                            except:
+                                pass
+            
+                df = pd.DataFrame(lists)
+                df.columns = df.iloc[0]
+                df = df[1:]
+                name = '../data/citibike/' + str(item.text[:6]) + '-citibike-tripdata.csv'
+        
+                df.to_csv(name, index=False) 
+        
+        return 
+
+S = ScrapeData()
+today = date.today()
+month = [str(today).replace('-','')[:6]]
+#month = ['201901','201902','201903','201904','201905','201906','201907','201908','201909','201910','201911','201912','202001','202002','202003','202004','202005','202006','202007','202008','202009','202010','202011','202012','202101','202102','202103','202104','202105','202106','202107','202108','202109','202110','202111','202112', '202201']
+S.Scrape(month)
+```
+
+
+# Step 1: Data cleaning 
+
+This is the line chart data processing code.
+`week` is the end date of each week.
+`afternoon` `evening`	`midnight`	`morning`	`noon` are the time fragment in a day, recording how many trip happen in a certain period.
+`tripduration` is how long the trip lasting (min).
+`case_count` and `case_rate` is coming from 'caserate-by-modzcta.csv'
+in https://github.com/nychealth/coronavirus-data/tree/master/trends
+
+
+# Trend Data processing
+```{r, warning=FALSE}
+month_19 <- c('201901','201902','201903','201904','201905','201906','201907','201908','201909','201910','201911','201912')
+month_20 <- c('202001','202002','202003','202004','202005','202006','202007','202008','202009','202010','202011','202012')
+month_21 <- c('202101','202102','202103','202104','202105','202106','202107','202108','202109','202110','202111','202112', '202201')
+year_list <- c(list(month_19),list(month_20),list(month_21))
+stat_list <- c('usertype','time_freg')
+
+linechart <- tibble()
+
+urlfile<- "https://raw.githubusercontent.com/nychealth/coronavirus-data/master/trends/caserate-by-modzcta.csv"
+city_case <- read_csv(url(urlfile)) %>% 
+  mutate(week = as.Date(week_ending, format= '%m/%d/%Y') + 1) %>%
+  rename(case_rate = CASERATE_CITY) %>%
+  dplyr::select(week,case_count,case_rate)
+
+for (month_list in year_list) {
+  for (month in month_list){
+  path <- paste('../data/citibike/', month, '-citibike-tripdata.csv',sep = '')
+  print(path)
+  df <- read.csv(path)
+  if (length(names(df)) > 13){
+    dft <- old_clean_yearly(df)
+  }
+  else{
+    dft <- new_clean_yearly(df)
+  }
+  x <- daily_stat(dft,stat_list)
+   if ('casual' %in% names(x)){
+    x <- x %>% rename(Customer = casual,
+                    Subscriber = member)
+  }
+  linechart <- rbind(linechart,x)
+  print(month)
+  }
+  print('year end')
+}
+linechart <- linechart %>% 
+  mutate(tripduration = round(tripduration/totaltrip,3))%>% 
+  left_join(city_case,by = 'week') %>%
+  mutate(Customer = round(Customer/totaltrip,4)*100,
+         Subscriber = round(Subscriber/totaltrip,4)*100,
+         afternoon = round(afternoon/totaltrip,4)*100,
+         evening = round(evening/totaltrip,4)*100,
+         midnight = round(midnight/totaltrip,4)*100,
+         morning = round(noon/totaltrip,4)*100,) %>%
+  dplyr::select(week,case_rate,tripduration,totaltrip,Customer,Subscriber,morning,noon,afternoon,evening,midnight)
+  
+  
+out_path <- '../data/citibike/cleaned/linechart_covid.csv'
+write.csv(linechart,out_path, row.names = FALSE, na = "0")
+saveRDS(final, "../data/citibike/cleaned/linechart_covid.RDS")
+
+```
+
+
+
+
+# Map data processing
+
+Generate data set without covid data. 
+```{r, warning=FALSE}
+month_19 <- c('201901','201902','201903','201904','201905','201906','201907','201908','201909','201910','201911','201912')
+month_20 <- c('202001','202002','202003','202004','202005','202006','202007','202008','202009','202010','202011','202012')
+month_21 <- c('202101','202102','202103','202104','202105','202106','202107','202108','202109','202110','202111','202112', '202201')
+year_list <- c(list(month_19),list(month_20),list(month_21))
+
+loczipzcta_all <- read.csv('../data/citibike/cleaned/loczipzcta_all.csv')
+stat_list <- c('zcta')
+
+loc <- tibble()
+
+for (month_list in year_list) {
+  for (month in month_list){
+    path <- paste('../data/citibike/', month, '-citibike-tripdata.csv',sep = '')
+    print(path)
+    df <- read.csv(path)
+    if (length(names(df)) > 13){
+      dft <- old_clean(df)
+    }
+    else{
+      dft <- new_clean(df)
+    }
+    print(dim(dft))
+    L_s <- dft %>% 
+    inner_join(loczipzcta_all, by = c("start_loc" = "loc")) %>%
+    dplyr::select(date,week,zcta,tripduration) 
+    L_e <- dft%>%
+    inner_join(loczipzcta_all, by = c("end_loc" = "loc")) %>%
+    dplyr::select(date,week,zcta,tripduration)
+    
+    L <- rbind(L_s,L_e)
+    df <- daily_stat(L,stat_list)
+    df <- df %>% mutate(totaltrip = round(totaltrip/2,0),
+                        tripduration = round(tripduration/2,0))
+    loc <- bind_rows(loc,df)
+    name <- paste('df_',month,sep = '')
+    print(name)
+  }
+  
+  print('output')
+  out_path <- paste('../data/citibike/cleaned/',name,'-stat.csv',sep = '')
+  write.csv(loc,out_path, row.names = FALSE, na = "0")
+  # saving data yearly in case of session abortion
+  
+}
+
+df <- loc %>% arrange(week) %>% 
+  dplyr::select(week,tripduration,totaltrip,starts_with('1')) %>%
+  replace(is.na(.), 0) %>%
+  group_by(week) %>% 
+  summarise_all(sum) %>%
+  ungroup() %>%
+  mutate(tripduration = tripduration/totaltrip) %>%
+  dplyr::select(week,tripduration,totaltrip,everything())
+
+
+out_path <- '../data/citibike/cleaned/citibike-stat.csv'
+write.csv(df,out_path, row.names = FALSE, na = "0")
+```
+
+
+Join with covid data.
+```{r}
+#df <- read.csv('../data/citibike/cleaned/citibike-stat.csv')
+# If R session aborted, uncomment the above line.
+df <- df %>% 
+      rename_all(~stringr::str_replace(.,"X",""))
+f <- df %>% 
+  pivot_longer(cols = starts_with("1"),
+                   names_to = "zcta", 
+                   values_to = "count") %>% 
+  mutate(week = as.Date(week))
+
+caserate_zcta <- readRDS("../data/citibike/cleaned/caserate_zcta.RDS")
+caserate_zcta$week_ending <- caserate_zcta$week_ending + days(1) 
+
+zcta_geo <- subset(caserate_zcta, select=c("zcta", "geometry"))
+zcta_geo <- zcta_geo[!duplicated(zcta_geo),]
+citibike_covid <- subset(f, select=c("week", "zcta","count"))
+
+citibike_covid <- f %>% left_join(caserate_zcta, by = c("week" = "week_ending",'zcta' = 'zcta')) %>%
+  dplyr::select(week,zcta,count,caserate) %>%
+  inner_join(zcta_geo, by = 'zcta') %>%
+  dplyr::select(zcta,geometry,week,caserate,count) %>%
+  arrange(zcta)
+  
+
+saveRDS(st_as_sf(citibike_covid),"../data/citibike/cleaned/citibike_covid.RDS")
+```
