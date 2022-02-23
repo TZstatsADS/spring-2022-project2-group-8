@@ -11,8 +11,8 @@ library(sf)
 library(lubridate)
 library(RColorBrewer)
 library(zoo)
-if (!require("remotes")) {
-  install.packages("remotes")
+if (!require("devtools")) {
+  install.packages("devtools")
   library(remotes)
   remotes::install_github("rstudio/leaflet")
 }
@@ -39,7 +39,13 @@ data = readRDS("../data/Subway/cleaned/Subway_Data_Processed.RDS")
 
 data_per_week_days = readRDS("../data/Subway/cleaned/Weekday_Subway_Data_Processed.RDS")
 
-data_per_week_days$Weekdays<-ordered(data_per_week_days$Weekdays,levels=c("lundi", "mardi", "mercredi", "jeudi","vendredi", "samedi", "dimanche"))
+data_per_week_days$Weekdays<-ordered(data_per_week_days$Weekdays,levels=c("monday",
+                                                                          "tuesday",
+                                                                          "wednesday",
+                                                                          "thursday",
+                                                                          "friday",
+                                                                          "saturday",
+                                                                          "sunday"))
 
 names(caserate_zcta)[7]<-"value_per_week"
 zip_polygon<-data%>%select(zcta,geometry)%>%unique
@@ -189,7 +195,7 @@ ui <- dashboardPage(skin = "black",
             )
         ),
         tabItem("subway",
-              tags$head(tags$link(rel = "stylesheet", type = "text/css", href = "style.css")),
+              tags$head(includeCSS("www/style.CSS")),
               navbarPage(strong("NYC Subway during Covid",style="color: white;"),position = "fixed-bottom", theme="styles.css",
               tabPanel("Subway Map",
                        div(class="outer",
@@ -464,7 +470,7 @@ Transformation_of_the_domain<-function(x){
     }
     week_subway_zcta <- reactive({
       if(input$transport == "Covid-19"){
-        w <- caserate_zcta %>% filter(week_ending-days(5) == input$date)}
+        w <- caserate_zcta %>% filter(week_ending == input$date)}
       else if(input$transport == "Subway"){
         w<-weekly_data%>%filter(Year_Week == input$date)
       }
@@ -530,7 +536,7 @@ Transformation_of_the_domain<-function(x){
                          ~GTFS.Latitude,
                          icon=anglerIcon,
                          label = ~station,
-                         layerId = ~paste(station,GTFS.Longitude,GTFS.Latitude,value_per_week,sep="/"),
+                         layerId = ~paste(station,GTFS.Longitude,GTFS.Latitude,value_per_week,sep=":"),
                          group = "stations",
                          labelOptions = labelOptions(style = list(
                            "color" = "black",
@@ -570,7 +576,7 @@ var digits = (label + '').length
     observeEvent(input$map_marker_click,{
       click<-input$map_marker_click
       info<-click$id
-      info<-unlist(strsplit(info,split = "/"))
+      info<-unlist(strsplit(info,split = ":"))
       station_name<-info[1]
       long<-as.numeric(info[2])
       lat<-as.numeric(info[3])
@@ -613,7 +619,7 @@ var digits = (label + '').length
     Total_Subway<-aggregate(list("value"=data$value_per_week),list("date"=data$Year_Week),sum)
     fig <- plot_ly()
     fig<-fig%>%add_trace(x=~Total_Subway$date,y=~Total_Subway$value,type="scatter",mode="lines+markers",fill='tozeroy', name = "Total subway uses")
-    Total_Covid<-aggregate(list("value"=caserate_zcta$value_per_week),list("date"=caserate_zcta$week_ending-days(5)),sum)
+    Total_Covid<-aggregate(list("value"=caserate_zcta$value_per_week),list("date"=caserate_zcta$week_ending),sum)
     ay <- list(
       tickfont = list(color = "red"),
       overlaying = "y",

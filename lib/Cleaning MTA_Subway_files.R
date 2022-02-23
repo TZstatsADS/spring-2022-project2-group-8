@@ -9,7 +9,7 @@ library(remotes)
 library(sf)
 
 remotes::install_github("jjchern/zipzcta")
-setwd("C:/Users/aroni/Documents/STATGR5243/Project_2/spring-2022-project2-group-8/data/Subway/cleaned")
+setwd("C:/Users/aroni/Documents/STATGR5243/Project_2/spring-2022-project2-group-8/app")
 
 process_data = function(url){
   # Retrieve the data
@@ -182,9 +182,46 @@ data$html_color <-color
 data<-st_as_sf(data)
 names(data)[8]<-"value_per_week"
 
-write.csv(data,"C:/Users/aroni/Documents/STATGR5243/Project_2/spring-2022-project2-group-8/data/Subway/cleaned/Subway_Data_Processed.csv")
-write_rds(data,"C:/Users/aroni/Documents/STATGR5243/Project_2/spring-2022-project2-group-8/data/Subway/cleaned/Subway_Data_Processed.RDS")
 
-write.csv(data_per_week_days,"C:/Users/aroni/Documents/STATGR5243/Project_2/spring-2022-project2-group-8/data/Subway/cleaned/Weekday_Subway_Data.csv")
-write_rds(data_per_week_days,"C:/Users/aroni/Documents/STATGR5243/Project_2/spring-2022-project2-group-8/data/Subway/cleaned/Weekday_Subway_Data_Processed.RDS")
+caserate_zcta$week_ending<-caserate_zcta$week_ending-days(5)
+names(caserate_zcta)[7]<-"value_per_week"
+names(caserate_zcta)[6]<-"Year_Week"
+sub_res<-(anti_join(st_drop_geometry(data),caserate_zcta,by="Year_Week"))%>%select(Year_Week,zcta)
+sub_res<-sub_res%>%unique
+sub_res<-merge(sub_res,caserate_zcta%>%select(zcta,bcode,note,geometry,MODZCTA)%>%unique(),by="zcta")%>%unique
+sub_res<-sub_res%>%mutate(value_per_week=as.double(0.00))
+caserate_zcta<-full_join(caserate_zcta,sub_res,by=names(caserate_zcta))
+names(caserate_zcta)[7]<-"caserate"
+names(caserate_zcta)[6]<-"week_ending"
+caserate_zcta<-caserate_zcta%>%unique
+caserate_zcta$week_ending<-as.Date(caserate_zcta$week_ending)
+caserate_zcta<-caserate_zcta[order(caserate_zcta$week_ending),]
+caserate_zcta<-st_as_sf(caserate_zcta)
+
+translation_weekdays<-as.data.frame(list(
+  "days"=c("monday",
+           "tuesday",
+           "wednesday",
+           "thursday",
+           "friday",
+           "saturday",
+           "sunday"),
+  "jour"=c("lundi",
+           "mardi",
+           "mercredi",
+           "jeudi",
+           "vendredi",
+           "samedi",
+           "dimanche")
+  ))
+
+data_per_week_days$Weekdays<-unlist(lapply(data_per_week_days$Weekdays,function(day){(translation_weekdays%>%filter(jour==day))$days}))
+data_per_week_days<-st_as_sf(data_per_week_days)
+write.csv(data,"../data/Subway/cleaned/Subway_Data_Processed.csv")
+write_rds(data,"../data/Subway/cleaned/Subway_Data_Processed.RDS")
+
+write_rds(caserate_zcta,"../data/citibike/cleaned/caserate_zcta.RDS")
+
+write.csv(data_per_week_days,"../data/Subway/cleaned/Weekday_Subway_Data.csv")
+write_rds(data_per_week_days,"../data/Subway/cleaned/Weekday_Subway_Data_Processed.RDS")
 
