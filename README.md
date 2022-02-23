@@ -4,9 +4,9 @@
 
 ![screenshot](doc/figs/readme_cover.png)
 
-#### Welcome to NYC Transportations Panel [https://kaiax.shinyapps.io/nyc-transportation-covid/]
+## Welcome to NYC Transportations Panel [https://kaiax.shinyapps.io/nyc-transportation-covid/]
 
-We developed a *Exploratory Data Analysis and Visualization* shiny app on the work of a **NYC government agency/program** of your choice using NYC open data released on the [NYC Open Data By Agency](https://opendata.cityofnewyork.us/data/) website. This app provided ways for a user to explore quantiative measures of how covid has impacted transporations (Citibike, Taxi, and Subway) in NYC from different prospectives. 
+We developed a *Exploratory Data Analysis and Visualization* shiny app on the work of a **NYC government agency/program** of your choice using NYC open data released on the [NYC Open Data By Agency](https://opendata.cityofnewyork.us/data/) website. This app provided ways for a user to explore quantiative measures of how covid has impacted transporations (**Citibike, Taxi, and Subway**) in NYC from different prospectives. 
 
 The **goals** for this project is:
 
