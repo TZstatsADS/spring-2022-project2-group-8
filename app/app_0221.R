@@ -10,6 +10,7 @@ library(htmlwidgets)
 library(sf)
 library(lubridate)
 library(RColorBrewer)
+library(zoo)
 if (!require("remotes")) {
   install.packages("remotes")
   library(remotes)
@@ -45,6 +46,15 @@ zip_polygon<-data%>%select(zcta,geometry)%>%unique
 weekly_data<-aggregate(list(value_per_week=data$value_per_week),list(zcta=data$zcta,Year_Week=data$Year_Week),sum)
 weekly_data<-merge(weekly_data,zip_polygon,by="zcta")
 weekly_data<-st_as_sf(weekly_data)
+
+# ----- TAXI DATA PROCESSING BEGIN -----
+# Read in csv files for taxi data (change columns to workable formats)
+taxi_data <- read.csv("../data/Taxi/cleaned/taxi_data_by_month_boro.csv")
+taxi_data$Date <- as.yearmon(paste(taxi_data$Year, taxi_data$Month), "%Y %m")
+taxi_data$weighted_trip_time = taxi_data$weighted_trip_time*60
+covid_data_taxi <- read.csv("../data/Taxi/cleaned/covid_data_by_month_boro.csv")
+covid_data_taxi$Date <- as.yearmon(paste(covid_data_taxi$Year, covid_data_taxi$Month), "%Y %m")
+# ----- TAXI DATA PROCESSING END -----
 
 # Define UI for application that draws a histogram
 ui <- dashboardPage(skin = "black",
@@ -137,7 +147,44 @@ ui <- dashboardPage(skin = "black",
         ),
         tabItem("taxi",
             fluidPage(
-                h1("Taxi")
+              titlePanel("Taxi Service"),
+              
+              # Sidebar layout with input and output definitions ----
+              sidebarLayout(
+                
+                # Sidebar panel for inputs ----
+                sidebarPanel(
+                  
+                  # Input: Select for the borough ----
+                  selectInput(inputId = "borough",
+                              label = "Choose a borough:",
+                              choices = c("Manhattan", "Bronx", "Brooklyn", "Queens", "Staten Island")),
+                  
+                  # Input: Select for the business type ----
+                  selectInput(inputId = "metric_type",
+                              label = "Choose a metric:",
+                              choices = c("Count", "Passenger Count", "Trip Distance", "Trip Time", "Total Amount", "Average Speed")),
+                  
+                  selectInput(inputId = "covid_data_boolean",
+                              label = "Display Covid Rate Data?",
+                              choices = c("Yes","No")),
+                  
+                  selectInput(inputId = "covid_metric",
+                              label = "Choose a metric for Covid:",
+                              choices = c("Cases", "Deaths", "Hospitalizations"))
+                  
+                ),
+                
+                # Main panel for displaying outputs ----
+                mainPanel(
+                  
+                  # Output: tsPlot on borough ----
+                  plotOutput(outputId = "tsPlot1"),
+                  
+                  plotOutput(outputId = "tsPlot2"),
+                  
+                )
+              )
             )
         ),
         tabItem("subway",
@@ -225,6 +272,132 @@ ui <- dashboardPage(skin = "black",
 # Define server logic required to draw
 server <- function(input, output, session) {
 
+  #---------- TAXI BEGIN ----------
+  
+  metric_data <- reactive({
+    if ( "Count" %in% input$metric_type){
+      return("Count")
+    }
+    if ( "Passenger Count" %in% input$metric_type){
+      return("weighted_passenger_count")
+    }
+    if ( "Trip Distance" %in% input$metric_type){
+      return("weighted_trip_distance")
+    }
+    if ( "Trip Time" %in% input$metric_type){
+      return("weighted_trip_time")
+    }
+    if ( "Total Amount" %in% input$metric_type){
+      return("weighted_total_amount")
+    }
+    if ( "Average Speed" %in% input$metric_type){
+      return("weighted_avg_speed")
+    }
+  })
+  
+  borough_data <- reactive({
+    if ( "Manhattan" %in% input$borough){
+      return("Manhattan")
+    }
+    if ( "Bronx" %in% input$borough){
+      return("Bronx")
+    }
+    if ( "Brooklyn" %in% input$borough){
+      return("Brooklyn")
+    }
+    if ( "Queens" %in% input$borough){
+      return("Queens")
+    }
+    if ( "Staten Island" %in% input$borough){
+      return("Staten Island")
+    }
+  })
+  
+  covid_metric <- reactive({
+    if ( "Cases" %in% input$covid_metric){
+      return("avg_case_count")
+    }
+    if ( "Deaths" %in% input$covid_metric){
+      return("avg_death_count")
+    }
+    if ( "Hospitalizations" %in% input$covid_metric){
+      return("avg_hosp_count")
+    }
+  })
+  
+  covid_data_table <- reactive({
+    if ( "Yes" %in% input$covid_data_boolean){
+      return(TRUE)
+    }
+    else{
+      return (FALSE)
+    }
+  })
+  
+  output$tsPlot1 <- renderPlot({
+    borough = borough_data()
+    metric = metric_data()
+    if(metric == "Count"){
+      metric_label = "Total Taxi Rides"
+    }
+    if(metric == "weighted_passenger_count"){
+      metric_label = "Passengers per Taxi Ride"
+    }
+    if(metric == "weighted_trip_distance"){
+      metric_label = "Distance per Taxi Ride (miles)"
+    }
+    if(metric == "weighted_trip_time"){
+      metric_label = "Time per Taxi Ride (minutes)"
+    }
+    if(metric == "weighted_total_amount"){
+      metric_label = "Charge Amount per Taxi Ride (USD)"
+    }
+    if(metric == "weighted_avg_speed"){
+      metric_label = "Average Speed per Taxi Ride (mph)"
+    }
+    data <- taxi_data[taxi_data$Borough == borough,c("Date", metric)]
+    y_max = max(data[,2])
+    ggplot(data = data, mapping = aes(x = data[,1], y=data[,2])) + geom_line() + geom_point()+ ylim(0,1.5*y_max) + ggtitle(borough) + labs(y=metric_label, x = "Month, Year") + theme(plot.title = element_text(hjust = 0.5, size=22, margin = margin(t = 0, r = 0, b = 20, l = 0)), axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)), axis.title.x = element_text(margin = margin(t=15, r = 0, b = 0, l = 0)))
+  })
+  
+  output$tsPlot2 <- renderPlot({
+    if(covid_data_table()){
+      borough = borough_data()
+      if(borough == "Manhattan"){
+        boro = "mn"
+      }
+      if(borough == "Bronx"){
+        boro = "bx"
+      }
+      if(borough == "Brooklyn"){
+        boro = "bk"
+      }
+      if(borough == "Queens"){
+        boro = "qn"
+      }
+      if(borough == "Staten Island"){
+        boro = "si"
+      }
+      
+      if(covid_metric() == "avg_case_count"){
+        covid_metric_label = "Cases per Day"
+      }
+      if(covid_metric() == "avg_death_count"){
+        covid_metric_label = "Deaths per Day"
+      }
+      if(covid_metric() == "avg_hosp_count"){
+        covid_metric_label = "Hospitalizations per Day"
+      }
+      
+      string = paste(covid_metric(), "_", boro, sep="")
+      data <- covid_data_taxi[,c("Date", string)]
+      y_max = max(data[,2])
+      ggplot(data = data, mapping = aes(x = data[,1], y=data[,2])) + geom_line() + geom_point()+ ylim(0,1.5*y_max) + labs(x = "Month, Year",y=covid_metric_label) + theme(axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)), axis.title.x = element_text(margin = margin(t=15, r = 0, b = 0, l = 0)))
+    }
+  })
+  
+  #---------- TAXI END ----------
+  
     week_zcta <- reactive({
         w <- citibike_covid %>% filter(week == input$dateSlider)
         return(w)
