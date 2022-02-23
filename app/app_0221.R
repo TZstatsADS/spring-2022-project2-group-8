@@ -111,8 +111,8 @@ ui <- dashboardPage(skin = "black",
                     titlePanel("Impact on Usage by Covid-19"),
                     sidebarLayout(
                         sidebarPanel(
-                            h5("The map shows the # of trips by ZCTAs (ZIP Code Tabulation Areas) with corona case rate.
-                               The data is from 2019/1/6 until now. You can see how citibike usage has been impacted by COVID-19."),
+                            h5("The map shows the # of trips by ZCTAs with corona case rate per 100,000 people.
+                               The data is from 2019/1/6 until 2022/2. You can see how citibike usage has been impacted by COVID-19."),
                             
                             #### for slider
                             sliderInput("dateSlider",
