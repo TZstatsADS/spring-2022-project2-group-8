@@ -494,7 +494,7 @@ Transformation_of_the_domain<-function(x){
         week_subway_zcta()$zcta, week_subway_zcta()$value_per_week) %>%
         lapply(htmltools::HTML)
       
-      week_subway_zcta() %>%st_transform(crs = "+init=epsg:4326")%>%leaflet() %>% addProviderTiles("Stamen.TonerLite")%>% setView(-73.983,40.7639,zoom = 13)%>%addPolygons(
+      week_subway_zcta() %>%st_transform(crs = "+init=epsg:4326")%>%leaflet() %>% addProviderTiles("CartoDB.DarkMatter")%>% setView(-73.983,40.7639,zoom = 13)%>%addPolygons(
           label = labels,
           stroke = FALSE,
           smoothFactor = .5,
