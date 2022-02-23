@@ -16,7 +16,7 @@ The **learning goals** for this project is:
 
 *The above general statement about project 2 can be removed once you are finished with your project. It is optional.
 
-## Project Title Lorem ipsum dolor sit amet
+## NYC Public Transport during the COVID-19 Pandemic
 Term: Spring 2022
 
 + Team 8
@@ -26,7 +26,7 @@ Term: Spring 2022
 	+ Nakamura, Shintaro
 	+ Xu, Rong
 
-+ **Project summary**: Leveraging the vast amount of open data from sources online, our Shiny App aims to illustrate the impact of the COVID-19 pandemic on various sectors of the public transport system in New York. This app examines a range of transport systems, namely Citibikes, Yellow Taxis, and Subways in relation to COVID-19. The results provide insight into the different ways people have adapted their transportation needs in accordance with the pandemic, and how the behavior of citizens have changed overall. 
++ **Project summary**: Leveraging the vast amount of open data from sources online, our Shiny App aims to illustrate the impact of the COVID-19 pandemic on various sectors of the public transport system in New York. This app examines a range of transport systems, namely Citibikes, Yellow Taxis, and Subways in relation to COVID-19. The results provide insight into the different ways people have adapted their transportation needs in accordance with the pandemic, and how the transport system has been recovering from the effects of the pandemic. 
 
 + **Contribution statement**: ([default](doc/a_note_on_contributions.md)) All team members contributed equally in the preliminary planning stages of this project. Shintaro and Rong took initiative in creating the base dashboard for the project and streaming the Shiny app respectively. All team members then contributed their part to the project, Shintaro working on the Covid data and location mapping for the various map visualizations, Rong working on cleaning and displaying Citibike data, Clement on analyzing and presenting the subway data, and Marvin for aggregating and cleaning the taxi data and creating the visualizations for them. 
 
