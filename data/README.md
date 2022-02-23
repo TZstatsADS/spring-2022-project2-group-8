@@ -1,5 +1,6 @@
-# ADS Project 1:  R Notebook on the history of philosophy
+Project 2: Shiny App Development
 
-### Doc folder
+### Data folder
 
-The doc directory contains the report or presentation files. It can have subfolders.  
+The data directory contains data used in the analysis. Some original files were too large to be saved here - please refer to our reference link from our app.
+
