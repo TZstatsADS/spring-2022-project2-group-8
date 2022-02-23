@@ -52,6 +52,7 @@ weekly_data<-st_as_sf(weekly_data)
 taxi_data <- read.csv("../data/Taxi/cleaned/taxi_data_by_month_boro.csv")
 taxi_data$Date <- as.yearmon(paste(taxi_data$Year, taxi_data$Month), "%Y %m")
 taxi_data$weighted_trip_time = taxi_data$weighted_trip_time*60
+taxi_data$weighted_total_amount <- taxi_data$weighted_total_amount * taxi_data$Count
 covid_data_taxi <- read.csv("../data/Taxi/cleaned/covid_data_by_month_boro.csv")
 covid_data_taxi$Date <- as.yearmon(paste(covid_data_taxi$Year, covid_data_taxi$Month), "%Y %m")
 # ----- TAXI DATA PROCESSING END -----
@@ -342,19 +343,19 @@ server <- function(input, output, session) {
     borough = borough_data()
     metric = metric_data()
     if(metric == "Count"){
-      metric_label = "Total Taxi Rides"
+      metric_label = "Total Number of Taxi Rides"
     }
     if(metric == "weighted_passenger_count"){
-      metric_label = "Passengers per Taxi Ride"
+      metric_label = "Average Passengers per Taxi Ride"
     }
     if(metric == "weighted_trip_distance"){
-      metric_label = "Distance per Taxi Ride (miles)"
+      metric_label = "Average Distance per Taxi Ride (miles)"
     }
     if(metric == "weighted_trip_time"){
-      metric_label = "Time per Taxi Ride (minutes)"
+      metric_label = "Average Time per Taxi Ride (minutes)"
     }
     if(metric == "weighted_total_amount"){
-      metric_label = "Charge Amount per Taxi Ride (USD)"
+      metric_label = "Total Spendings on Taxi Rides (USD)"
     }
     if(metric == "weighted_avg_speed"){
       metric_label = "Average Speed per Taxi Ride (mph)"

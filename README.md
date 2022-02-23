@@ -19,17 +19,16 @@ The **learning goals** for this project is:
 ## Project Title Lorem ipsum dolor sit amet
 Term: Spring 2022
 
-+ Team #
-+ **Projec title**: + Team members
-	+ team member 1
-	+ team member 2
-	+ team member 3
-	+ team member 4
-	+ team member 5
++ Team 8
++ **Visualizing the Effect of COVID-19 on Public Transport**:
+	+ Clement, Micol
+	+ Limpijankit, Marvin
+	+ Nakamura, Shintaro
+	+ Xu, Rong
 
-+ **Project summary**: Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
++ **Project summary**: Leveraging the vast amount of open data from sources online, our Shiny App aims to illustrate the impact of the COVID-19 pandemic on various sectors of the public transport system in New York. This app examines a range of transport systems, namely Citibikes, Yellow Taxis, and Subways in relation to COVID-19. The results provide insight into the different ways people have adapted their transportation needs in accordance with the pandemic, and how the behavior of citizens have changed overall. 
 
-+ **Contribution statement**: ([default](doc/a_note_on_contributions.md)) All team members contributed equally in all stages of this project. All team members approve our work presented in this GitHub repository including this contributions statement. 
++ **Contribution statement**: ([default](doc/a_note_on_contributions.md)) All team members contributed equally in the preliminary planning stages of this project. Shintaro and Rong took initiative in creating the base dashboard for the project and streaming the Shiny app respectively. All team members then contributed their part to the project, Shintaro working on the Covid data and location mapping for the various map visualizations, Rong working on cleaning and displaying Citibike data, Clement on analyzing and presenting the subway data, and Marvin for aggregating and cleaning the taxi data and creating the visualizations for them. 
 
 Following [suggestions](http://nicercode.github.io/blog/2013-04-05-projects/) by [RICH FITZJOHN](http://nicercode.github.io/about/#Team) (@richfitz). This folder is orgarnized as follows.
 
