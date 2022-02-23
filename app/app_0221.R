@@ -448,7 +448,7 @@ server <- function(input, output, session) {
         labs(title = "Trip Duration & Total Trips in NYC" , x = 'Week', y = 'Trip duration')+
         scale_y_continuous(
           name = "Trip Duration(mins) or Total Trips(20000 trips)",
-          sec.axis = sec_axis(~.*110, name="COVID cases")) + 
+          sec.axis = sec_axis(~.*110, name="COVID case rate per 100,000 people")) + 
         #
         theme(panel.background = element_rect(fill = "gray10",
                                                 colour = "gray10",
